@@ -309,22 +309,28 @@ export default function OrdersManagement() {
   };
 
   const handleCourierSubmit = async (courierName: CourierProvider) => {
-    if (!selectedOrder) return;
-    try {
-      const res = await createCourier({
-        orderId: selectedOrder._id,
-        courierName,
-      }).unwrap();
-      if (res.success) {
-        toast.success("Courier assigned successfully");
-        setCourierModalOpen(false);
-        setSelectedOrder(null);
-        refetch();
-      }
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to assign courier");
+  if (!selectedOrder) return;
+
+  try {
+    const res = await createCourier({
+      orderId: selectedOrder._id,
+      courierName,
+    }).unwrap();
+
+    if (res.success) {
+      toast.success("Courier assignment started");
+
+      setCourierModalOpen(false);
+      setSelectedOrder(null);
     }
-  };
+  } catch (err: any) {
+    toast.error(
+      err?.data?.message ||
+        err?.error ||
+        "Failed to start courier assignment",
+    );
+  }
+};
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
