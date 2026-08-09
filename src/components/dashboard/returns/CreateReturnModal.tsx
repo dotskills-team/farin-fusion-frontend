@@ -47,7 +47,7 @@ interface CreateReturnModalProps {
 }
 
 // Orders eligible for a return
-const ELIGIBLE_ORDER_STATUSES = ["CONFIRMED", "COMPLETED", "CANCELLED"];
+const ELIGIBLE_ORDER_STATUSES = ["CONFIRMED", "PARTIAL", "COMPLETED", "CANCELLED"];
 
 export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
   open,
