@@ -22,6 +22,7 @@ import { Eye, MoreHorizontal, Trash2, Edit, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { StatusChangeDialog } from "./StatusChangeDialog";
 import { IPurchase } from "@/types/purchase";
+import { useGetMeQuery } from "@/redux/features/user/user.api";
 
 // interface Purchase {
 //   _id: string;
@@ -113,6 +114,9 @@ export const ProductPurchaseTable: React.FC<ProductPurchaseTableProps> = ({
     statusType: "purchase",
   });
 
+  const { data: user } = useGetMeQuery(undefined);
+  const role = user?.data?.role;
+
   const handleStatusChangeClick = (
     purchaseId: string,
     currentStatus: string,
@@ -155,15 +159,22 @@ export const ProductPurchaseTable: React.FC<ProductPurchaseTableProps> = ({
                 <TableHead className="text-amber-900 dark:text-amber-100 font-bold">
                   Supplier
                 </TableHead>
+
                 <TableHead className="text-amber-900 dark:text-amber-100 font-bold text-right">
                   Quantity
                 </TableHead>
-                <TableHead className="text-amber-900 dark:text-amber-100 font-bold text-right">
-                  Unit Price
-                </TableHead>
-                <TableHead className="text-amber-900 dark:text-amber-100 font-bold text-right">
-                  Total Amount
-                </TableHead>
+                {
+                  role === "ADMIN" &&
+                  <TableHead className="text-amber-900 dark:text-amber-100 font-bold text-right">
+                    Unit Price
+                  </TableHead>
+                }
+                {
+                  role === "ADMIN" &&
+                  <TableHead className="text-amber-900 dark:text-amber-100 font-bold text-right">
+                    Total Amount
+                  </TableHead>
+                }
                 <TableHead className="text-amber-900 dark:text-amber-100 font-bold text-center">
                   Purchase Status
                 </TableHead>
@@ -245,23 +256,29 @@ export const ProductPurchaseTable: React.FC<ProductPurchaseTableProps> = ({
                         0,
                       ) || 0}
                     </TableCell>
-                    <TableCell className="text-right text-gray-700 dark:text-gray-300">
-                      ৳
-                      {(
-                        purchase.products?.[0]?.buyingPrice || 0
-                      ).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right font-semibold text-gray-900 dark:text-white">
-                      ৳
-                      {(
-                        purchase.grandTotal ||
-                        purchase.products?.reduce(
-                          (sum, item) => sum + item.totalAmount,
-                          0,
-                        ) ||
-                        0
-                      ).toLocaleString()}
-                    </TableCell>
+                    {
+                      role === "ADMIN" &&
+                      <TableCell className="text-right text-gray-700 dark:text-gray-300">
+                        ৳
+                        {(
+                          purchase.products?.[0]?.buyingPrice || 0
+                        ).toLocaleString()}
+                      </TableCell>
+                    }
+                    {
+                      role === "ADMIN" &&
+                      <TableCell className="text-right font-semibold text-gray-900 dark:text-white">
+                        ৳
+                        {(
+                          purchase.grandTotal ||
+                          purchase.products?.reduce(
+                            (sum, item) => sum + item.totalAmount,
+                            0,
+                          ) ||
+                          0
+                        ).toLocaleString()}
+                      </TableCell>
+                    }
                     <TableCell className="text-center">
                       <button
                         onClick={() =>
@@ -310,20 +327,23 @@ export const ProductPurchaseTable: React.FC<ProductPurchaseTableProps> = ({
                           {purchase.paymentType}
                         </Badge>
 
-                        <div className="text-[11px] leading-tight">
-                          {purchase.paidAmount > 0 && (
-                            <p className="text-emerald-600 font-semibold">
-                              Paid: ৳
-                              {(purchase.paidAmount || 0).toLocaleString()}
-                            </p>
-                          )}
+                        {
+                          role === "ADMIN" &&
+                          <div className="text-[11px] leading-tight">
+                            {purchase.paidAmount > 0 && (
+                              <p className="text-emerald-600 font-semibold">
+                                Paid: ৳
+                                {(purchase.paidAmount || 0).toLocaleString()}
+                              </p>
+                            )}
 
-                          {(purchase.dueAmount || 0) > 0 && (
-                            <p className="text-red-500 font-semibold">
-                              Due: ৳{purchase.dueAmount.toLocaleString()}
-                            </p>
-                          )}
-                        </div>
+                            {(purchase.dueAmount || 0) > 0 && (
+                              <p className="text-red-500 font-semibold">
+                                Due: ৳{purchase.dueAmount.toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        }
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
