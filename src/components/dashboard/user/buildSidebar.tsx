@@ -40,6 +40,7 @@ const iconMap: Record<PageAccess, React.ReactNode> = {
   "my-orders": <Package className="h-5 w-5" />,
   "orders-management": <ListOrdered className="h-5 w-5" />,
   "user-management": <Users className="h-5 w-5" />,
+  "product-stock-adjustment": <Box className="h-5 w-5" />,
   "product-verifications": <Box className="h-5 w-5" />,
   "staff-management": <Users className="h-5 w-5" />,
   "customer-management": <User className="h-5 w-5" />,
