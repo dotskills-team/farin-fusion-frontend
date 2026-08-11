@@ -202,7 +202,10 @@ export default function CreateCategoryModal() {
               <Input
                 id="showOrder"
                 type="number"
-                min={1}
+                 min="0"
+                step="1"
+                inputMode="decimal"
+                onWheel={(e) => e.currentTarget.blur()}
                 placeholder="e.g. 1"
                 {...register("showOrder")}
               />

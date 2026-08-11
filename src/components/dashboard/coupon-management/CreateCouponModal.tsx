@@ -305,7 +305,10 @@ export function CreateCouponModal({
                   <Input
                     id="discountValue"
                     type="number"
-                    min="1"
+                    min="0"
+                    step="1"
+                    inputMode="decimal"
+                    onWheel={(e) => e.currentTarget.blur()}
                     placeholder="0"
                     className={cn(inputCls, "pl-7")}
                     {...register("discountValue")}
@@ -331,6 +334,9 @@ export function CreateCouponModal({
                     id="minOrderAmount"
                     type="number"
                     min="0"
+                    step="1"
+                    inputMode="decimal"
+                    onWheel={(e) => e.currentTarget.blur()}
                     placeholder="0"
                     className={cn(inputCls, "pl-7")}
                     {...register("minOrderAmount")}
@@ -354,6 +360,9 @@ export function CreateCouponModal({
                       id="maxDiscount"
                       type="number"
                       min="0"
+                      step="1"
+                      inputMode="decimal"
+                      onWheel={(e) => e.currentTarget.blur()}
                       placeholder="No cap"
                       className={cn(inputCls, "pl-7")}
                       {...register("maxDiscount")}
@@ -371,7 +380,10 @@ export function CreateCouponModal({
                   <Input
                     id="usageLimit"
                     type="number"
-                    min="1"
+                    min="0"
+                    step="1"
+                    inputMode="decimal"
+                    onWheel={(e) => e.currentTarget.blur()}
                     placeholder="1"
                     className={inputCls}
                     {...register("usageLimit")}
@@ -392,7 +404,10 @@ export function CreateCouponModal({
                 <Input
                   id="usageLimit"
                   type="number"
-                  min="1"
+                  min="0"
+                  step="1"
+                  inputMode="decimal"
+                  onWheel={(e) => e.currentTarget.blur()}
                   placeholder="1 (default)"
                   className={inputCls}
                   {...register("usageLimit")}

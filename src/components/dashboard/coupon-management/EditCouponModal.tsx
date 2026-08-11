@@ -180,7 +180,10 @@ export function EditCouponModal({
                     id="value"
                     type="number"
                     min="0"
-                    step="0.01"
+                step="1"
+                inputMode="decimal"
+                onWheel={(e) => e.currentTarget.blur()}
+                   
                     value={formData.discountValue}
                     onChange={(e) =>
                       setFormData({
@@ -218,7 +221,9 @@ export function EditCouponModal({
                   id="minOrder"
                   type="number"
                   min="0"
-                  step="0.01"
+                step="1"
+                inputMode="decimal"
+                onWheel={(e) => e.currentTarget.blur()}
                   value={formData.minOrderAmount ?? ""}
                   onChange={(e) =>
                     setFormData({
@@ -247,8 +252,10 @@ export function EditCouponModal({
                 <Input
                   id="maxDiscount"
                   type="number"
-                  min="0"
-                  step="0.01"
+                   min="0"
+                step="1"
+                inputMode="decimal"
+                onWheel={(e) => e.currentTarget.blur()}
                   value={formData.maxDiscount ?? ""}
                   onChange={(e) =>
                     setFormData({
@@ -301,7 +308,10 @@ export function EditCouponModal({
                 <Input
                   id="limit"
                   type="number"
-                  min="1"
+                   min="0"
+                step="1"
+                inputMode="decimal"
+                onWheel={(e) => e.currentTarget.blur()}
                   value={formData.usageLimit ?? ""}
                   onChange={(e) =>
                     setFormData({

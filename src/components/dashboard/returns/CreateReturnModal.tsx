@@ -604,7 +604,10 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
                         {/* Quantity */}
                         <Input
                           type="number"
-                          min="1"
+                           min="0"
+                step="1"
+                inputMode="decimal"
+                onWheel={(e) => e.currentTarget.blur()}
                           value={product.quantity}
                           onChange={(e) =>
                             handleProductChange(
