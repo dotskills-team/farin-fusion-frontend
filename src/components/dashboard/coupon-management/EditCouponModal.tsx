@@ -178,12 +178,11 @@ export function EditCouponModal({
                 <div className="relative">
                   <Input
                     id="value"
-                    type="number"
-                    min="0"
-                step="1"
-                inputMode="decimal"
-                onWheel={(e) => e.currentTarget.blur()}
-                   
+                   type="number"
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
+                  onWheel={(e) => e.currentTarget.blur()}
                     value={formData.discountValue}
                     onChange={(e) =>
                       setFormData({
@@ -219,11 +218,11 @@ export function EditCouponModal({
                 </Label>
                 <Input
                   id="minOrder"
-                  type="number"
+                 type="number"
                   min="0"
-                step="1"
-                inputMode="decimal"
-                onWheel={(e) => e.currentTarget.blur()}
+                  step="1"
+                  inputMode="numeric"
+                  onWheel={(e) => e.currentTarget.blur()}
                   value={formData.minOrderAmount ?? ""}
                   onChange={(e) =>
                     setFormData({
@@ -252,10 +251,10 @@ export function EditCouponModal({
                 <Input
                   id="maxDiscount"
                   type="number"
-                   min="0"
-                step="1"
-                inputMode="decimal"
-                onWheel={(e) => e.currentTarget.blur()}
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
+                  onWheel={(e) => e.currentTarget.blur()}
                   value={formData.maxDiscount ?? ""}
                   onChange={(e) =>
                     setFormData({
@@ -308,21 +307,21 @@ export function EditCouponModal({
                 <Input
                   id="limit"
                   type="number"
-                   min="0"
-                step="1"
-                inputMode="decimal"
-                onWheel={(e) => e.currentTarget.blur()}
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
+                  onWheel={(e) => e.currentTarget.blur()}
                   value={formData.usageLimit ?? ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
                       usageLimit: e.target.value
-                        ? parseInt(e.target.value)
+                        ? parseInt(e.target.value, 10)
                         : undefined,
                     })
                   }
                   placeholder="Unlimited"
-                  className="border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
+                  className="border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
               </div>
             </div>

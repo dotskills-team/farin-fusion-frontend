@@ -604,10 +604,10 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
                         {/* Quantity */}
                         <Input
                           type="number"
-                           min="0"
-                step="1"
-                inputMode="decimal"
-                onWheel={(e) => e.currentTarget.blur()}
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
+                  onWheel={(e) => e.currentTarget.blur()}
                           value={product.quantity}
                           onChange={(e) =>
                             handleProductChange(
@@ -728,8 +728,10 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
                   <Input
                     id="refundAmount"
                     type="number"
-                    min="0"
-                    step="0.01"
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
+                  onWheel={(e) => e.currentTarget.blur()}
                     value={refundAmount}
                     onChange={(e) =>
                       setRefundAmount(parseFloat(e.target.value) || 0)
