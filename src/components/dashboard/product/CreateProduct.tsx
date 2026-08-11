@@ -82,6 +82,9 @@ export default function CreateProduct() {
   const { data: brandsData } = useGetAllBrandsQuery({ limit: 100 });
   const { data: user } = useGetMeQuery(undefined);
   const role = user?.data?.role;
+  const permissions = user?.data?.permissions || [];
+   const canAdjustStock =
+  role === "ADMIN" || permissions.includes("product-stock-adjustment");
 
   const categories = categoriesData?.data || [];
   const brands = brandsData?.data || [];
@@ -294,7 +297,8 @@ export default function CreateProduct() {
                   <Input type="number" {...register("discountPrice")} />
                 </div>
 
-                  <div className="space-y-2">
+                  {canAdjustStock && (
+                    <div className="space-y-2">
                     <Label>Stock</Label>
                     <Input
                       type="number"
@@ -305,6 +309,7 @@ export default function CreateProduct() {
                       {errors.availableStock?.message}
                     </p>
                   </div>
+                  )}
               </div>
 
               {/* <div className="space-y-2">

@@ -160,7 +160,7 @@
 //     DELIVERY_STATUS_MAP.NOT_SHIPPED;
 //   const StatusIcon = orderStatus.icon;
 //   const canEdit =
-//     ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) &&
+//     ["ADMIN", "MODERATOR", "MANAGER", "TELESALES"].includes(userRole) &&
 //     !order?.courierName;
 //   const isConfirmed = order?.orderStatus === "CONFIRMED";
 //   const moderatorEdit = ["MODERATOR"].includes(userRole) && !isConfirmed;
@@ -593,7 +593,7 @@ export function MyOrderDetailModal({
     DELIVERY_STATUS_MAP.NOT_SHIPPED;
   const StatusIcon = orderStatus.icon;
   const canEdit =
-    ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) &&
+    ["ADMIN", "MODERATOR", "MANAGER", "TELESALES"].includes(userRole) &&
     !order?.courierName;
   const isConfirmed = order?.orderStatus === "CONFIRMED";
   const moderatorEdit = ["MODERATOR"].includes(userRole) && !isConfirmed;

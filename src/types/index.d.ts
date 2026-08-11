@@ -51,7 +51,7 @@ export enum Role {
   ADMIN = "ADMIN",
   MANAGER = "MANAGER",
   MODERATOR = "MODERATOR",
-  TELLICELSS = "TELLICELSS",
+  TELESALES = "TELESALES",
 }
 export enum IsActive {
   ACTIVE = "ACTIVE",

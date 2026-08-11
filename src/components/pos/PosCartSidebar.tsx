@@ -107,9 +107,7 @@ export function POSCartSidebar({
   const [advanceData, setAdvanceData] = useState<AdvanceData>({
     option: undefined,
     amount: 0,
-  })
-  
-  
+  });
 
   useEffect(() => {
     if (searchParams.get("prefill") === "1") {
@@ -290,10 +288,12 @@ export function POSCartSidebar({
               type="number"
               min="0"
               step="1"
+              inputMode="decimal"
               placeholder="Enter delivery charge"
               value={deliveryCharge}
               onChange={(e) => setDeliveryCharge(e.target.value)}
-              className="text-sm"
+              onWheel={(e) => e.currentTarget.blur()}
+              className="text-sm [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
           </div>
 
@@ -334,14 +334,18 @@ export function POSCartSidebar({
               <Input
                 type="number"
                 min="0"
+                step="1"
+                inputMode="decimal"
                 placeholder="Advance amount"
                 value={advanceData.amount || ""}
                 onChange={(e) =>
                   setAdvanceData({
                     ...advanceData,
-                    amount: Number(e.target.value),
+                    amount: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
+                onWheel={(e) => e.currentTarget.blur()}
+                className="[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
           </div>
@@ -378,10 +382,14 @@ export function POSCartSidebar({
               type="number"
               min="0"
               step="0.01"
+              inputMode="decimal"
               placeholder="0.00"
               value={discountInput}
               onChange={(e) => handleDiscountChange(e.target.value)}
+              onWheel={(e) => e.currentTarget.blur()}
               className={cn(
+                "[&::-webkit-inner-spin-button]:appearance-none",
+                "[&::-webkit-outer-spin-button]:appearance-none",
                 "pl-7 pr-8 text-sm rounded-lg",
                 "border-gray-200 bg-gray-50/50 dark:border-gray-700 dark:bg-gray-800/50",
                 "focus:border-emerald-400 dark:focus:border-emerald-500 transition-colors",
@@ -536,9 +544,9 @@ export function POSCartSidebar({
         <div className="mx-4 mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800/60 dark:bg-amber-900/20">
           <PackageSearch className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
           <p className="text-[11px] leading-relaxed text-amber-700 dark:text-amber-400">
-            {waitingStockCount} unit(s) exceed current stock and will be
-            marked <span className="font-semibold">Waiting for Stock</span>{" "}
-            until restocked.
+            {waitingStockCount} unit(s) exceed current stock and will be marked{" "}
+            <span className="font-semibold">Waiting for Stock</span> until
+            restocked.
           </p>
         </div>
       )}

@@ -231,7 +231,7 @@ export default function POSManagement() {
             : undefined,
         total: totalAmount,
         discount: discountAmount ?? 0,
-        shippingCost: orderType === "DELIVERY" ? deliveryCharge : 0,
+        shippingCost: deliveryCharge || 0,
         billingDetails: {
           fullName: customerData.name,
           email: customerData.email,

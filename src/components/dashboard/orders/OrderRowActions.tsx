@@ -110,10 +110,10 @@ export function OrderRowActions({
 
   // const canEdit =
   //   userRole &&
-  //   ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) && !order.courierName;
+  //   ["ADMIN", "MODERATOR", "MANAGER", "TELESALES"].includes(userRole) && !order.courierName;
 
   // const isRoleAllowed =
-  //     ["ADMIN", "MANAGER", "TELLICELSS"].includes(userRole) ||
+  //     ["ADMIN", "MANAGER", "TELESALES"].includes(userRole) ||
   //     (userRole === "MODERATOR" && !isConfirmed);
   //
   // const canEdit =
@@ -124,14 +124,14 @@ export function OrderRowActions({
   //     !isDelivered;
 
   const hasAccess =
-    userRole && ["ADMIN", "MANAGER", "TELLICELSS"].includes(userRole);
+    userRole && ["ADMIN", "MANAGER", "TELESALES"].includes(userRole);
   const isNoResponse = order.orderStatus === "NO_RESPONSE";
   const isWaitingStock = order.orderStatus === "WAITING_FOR_STOCK";
 
   const [editOpen, setEditOpen] = useState(false);
   const [editOpenTiming, setEditOpenTiming] = useState(false);
 
-  const withoutTellicelss = userRole && ["ADMIN", "MANAGER"].includes(userRole);
+  const withoutTELESALES = userRole && ["ADMIN", "MANAGER"].includes(userRole);
 
   const [sellerDialogOpen, setSellerDialogOpen] = useState(false);
   const [manualDeliveryModalOpen, setManualDeliveryModalOpen] = useState(false);
@@ -314,7 +314,7 @@ export function OrderRowActions({
           {!isNoResponse &&
             !isWaitingStock &&
             order.isPublished &&
-            withoutTellicelss && (
+            withoutTELESALES && (
               <>
                 <DropdownMenuItem
                   className="gap-2 text-sm cursor-pointer"

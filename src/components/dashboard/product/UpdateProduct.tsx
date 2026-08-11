@@ -509,7 +509,6 @@ const UpdateProduct = () => {
                     <div className="space-y-2">
                       <Label>Adjust By (Add/Subtract)</Label>
                       <Input
-                      disabled={role !== "ADMIN"}
                         type="number"
                         onWheel={(e) => e.currentTarget.blur()}
                         placeholder="e.g., 5 to add, -5 to subtract"
