@@ -23,7 +23,16 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, X, Search, Package, MapPin, Phone, User, Loader2 } from "lucide-react";
+import {
+  Plus,
+  X,
+  Search,
+  Package,
+  MapPin,
+  Phone,
+  User,
+  Loader2,
+} from "lucide-react";
 import { useCreateReturnMutation } from "@/redux/features/return/returnApi";
 import { useGetAllOrdersQuery } from "@/redux/features/orders/ordersApi";
 import { cn } from "@/lib/utils";
@@ -32,7 +41,7 @@ import { IProduct } from "@/types";
 
 interface ReturnProduct {
   product: string;
-  quantity: number;
+  quantity?: number;
   reason: string;
   shouldRestock?: boolean;
   isDamaged?: boolean;
@@ -47,7 +56,12 @@ interface CreateReturnModalProps {
 }
 
 // Orders eligible for a return
-const ELIGIBLE_ORDER_STATUSES = ["CONFIRMED", "PARTIAL", "COMPLETED", "CANCELLED"];
+const ELIGIBLE_ORDER_STATUSES = [
+  "CONFIRMED",
+  "PARTIAL",
+  "COMPLETED",
+  "CANCELLED",
+];
 
 export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
   open,
@@ -59,7 +73,9 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
   const [selectedOrder, setSelectedOrder] = useState<string>("");
   const [selectedOrderObj, setSelectedOrderObj] = useState<any>(null);
   const [returnedProducts, setReturnedProducts] = useState<ReturnProduct[]>([]);
-  const [refundAmount, setRefundAmount] = useState<number>(0);
+  const [refundAmount, setRefundAmount] = useState<number | undefined>(
+    undefined,
+  );
   const [refundStatus, setRefundStatus] = useState<string>("PENDING");
   const [notes, setNotes] = useState<string>("");
   const [productSearchMap, setProductSearchMap] = useState<
@@ -82,10 +98,7 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
   }, [orderSearch]);
 
   // Only query the backend while the dropdown is actually open (and while modal is open)
-  const {
-    data: ordersData,
-    isFetching: ordersLoading,
-  } = useGetAllOrdersQuery(
+  const { data: ordersData, isFetching: ordersLoading } = useGetAllOrdersQuery(
     {
       ...(debouncedOrderSearch && { searchTerm: debouncedOrderSearch }),
       limit: 15,
@@ -138,7 +151,7 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
       ...returnedProducts,
       {
         product: "",
-        quantity: 1,
+        quantity: undefined,
         reason: "COURIER_RETURN",
         shouldRestock: true,
         isDamaged: false,
@@ -225,7 +238,11 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
     }
 
     for (const product of returnedProducts) {
-      if (!product.product || product.quantity < 1) {
+      if (
+        !product.product ||
+        product.quantity === undefined ||
+        product.quantity < 1
+      ) {
         toast.error("Please fill all product details");
         return;
       }
@@ -236,7 +253,10 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
         order: selectedOrder,
         returnedProducts,
         refundAmount,
-        refundStatus: refundAmount > 0 ? refundStatus : "NOT_REQUIRED",
+        refundStatus:
+          refundAmount !== undefined && refundAmount > 0
+            ? refundStatus
+            : "NOT_REQUIRED",
         notes,
       }).unwrap();
 
@@ -254,7 +274,7 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
     setSelectedOrder("");
     setSelectedOrderObj(null);
     setReturnedProducts([]);
-    setRefundAmount(0);
+    setRefundAmount(undefined);
     setRefundStatus("PENDING");
     setNotes("");
     setProductSearchMap({});
@@ -317,8 +337,7 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
                       <div className="p-2">
                         {!orderSearch.trim() && (
                           <p className="px-3 pb-2 pt-1 text-[10px] font-medium uppercase tracking-wide text-gray-400">
-                            Recent orders — type to search by ID, name or
-                            phone
+                            Recent orders — type to search by ID, name or phone
                           </p>
                         )}
                         {ordersLoading ? (
@@ -604,19 +623,28 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
                         {/* Quantity */}
                         <Input
                           type="number"
-                  min="0"
-                  step="1"
-                  inputMode="numeric"
-                  onWheel={(e) => e.currentTarget.blur()}
-                          value={product.quantity}
-                          onChange={(e) =>
+                          min="1"
+                          step="1"
+                          inputMode="numeric"
+                          value={product.quantity ?? ""}
+                          onWheel={(e) => e.currentTarget.blur()}
+                          onChange={(e) => {
+                            const value = e.target.value;
+
                             handleProductChange(
                               index,
                               "quantity",
-                              parseInt(e.target.value) || 1,
-                            )
-                          }
-                          placeholder="Quantity"
+                              value === ""
+                                ? undefined
+                                : Math.max(1, parseInt(value, 10)),
+                            );
+                          }}
+                          placeholder="Enter quantity"
+                          className={cn(
+                            "[appearance:textfield]",
+                            "[&::-webkit-inner-spin-button]:appearance-none",
+                            "[&::-webkit-outer-spin-button]:appearance-none",
+                          )}
                         />
                       </div>
 
@@ -728,15 +756,26 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
                   <Input
                     id="refundAmount"
                     type="number"
-                  min="0"
-                  step="1"
-                  inputMode="numeric"
-                  onWheel={(e) => e.currentTarget.blur()}
-                    value={refundAmount}
-                    onChange={(e) =>
-                      setRefundAmount(parseFloat(e.target.value) || 0)
-                    }
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    value={refundAmount ?? ""}
+                    onWheel={(e) => e.currentTarget.blur()}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      setRefundAmount(
+                        value === ""
+                          ? undefined
+                          : Math.max(0, parseFloat(value)),
+                      );
+                    }}
                     placeholder="0.00"
+                    className={cn(
+                      "[appearance:textfield]",
+                      "[&::-webkit-inner-spin-button]:appearance-none",
+                      "[&::-webkit-outer-spin-button]:appearance-none",
+                    )}
                   />
                 </div>
 
@@ -747,7 +786,7 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
                   <Select
                     value={refundStatus}
                     onValueChange={setRefundStatus}
-                    disabled={refundAmount === 0}
+                    disabled={!refundAmount || refundAmount <= 0}
                   >
                     <SelectTrigger id="refundStatus">
                       <SelectValue />
