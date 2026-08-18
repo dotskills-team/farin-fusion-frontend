@@ -259,13 +259,15 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({
             : "NOT_REQUIRED",
         notes,
       }).unwrap();
-
+     console.log("Create return result:", result);
       if (result) {
         toast.success("Return created successfully");
         resetForm();
         onSuccess();
       }
     } catch (error: any) {
+
+      console.log("Error creating return:", error);
       toast.error(error?.data?.message || "Failed to create return");
     }
   };
