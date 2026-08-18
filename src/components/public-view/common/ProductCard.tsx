@@ -41,7 +41,11 @@ const ProductCard = ({ product, index }: ProductCardProps) => {
   const wishlistItems = useSelector((state: RootState) => state.wish.items);
 
   const wished = wishlistItems.some((item) => item._id === product._id);
-  const hasDiscount = typeof discountPrice === "number" && discountPrice > 0;
+  // const hasDiscount = typeof discountPrice === "number" && discountPrice > price;
+  const hasDiscount =
+    typeof discountPrice === "number" &&
+    discountPrice > 0 &&
+    discountPrice < (price ?? 0);
 
   const [btnHovered, setBtnHovered] = useState(false);
 
@@ -87,7 +91,7 @@ const ProductCard = ({ product, index }: ProductCardProps) => {
   };
 
   const onAddToCart = () => {
-     AnalyticsEvents.addToCart({
+    AnalyticsEvents.addToCart({
       ...product,
 
       quantity: 1,
