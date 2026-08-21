@@ -1,3 +1,4 @@
+
 // /* eslint-disable @typescript-eslint/no-explicit-any */
 // "use client";
 
@@ -121,8 +122,13 @@
 
 //   const { data: user } = useGetMeQuery(undefined);
 //   const role = user?.data?.role;
+//   // Only ADMIN can view any price / amount related information on this form
+//   const isAdmin = role === "ADMIN";
 
-//   const [formData, setFormData] = useState({
+// console.log("Selected Products:", selectedProducts);
+
+
+// const [formData, setFormData] = useState({
 //     supplierName: "",
 //     supplierPhone: "",
 //     supplierAddress: "",
@@ -150,11 +156,12 @@
 //     document.addEventListener("mousedown", handle);
 //     return () => document.removeEventListener("mousedown", handle);
 //   }, []);
-
+  
 //   useEffect(() => {
 //     if (!open) return;
-
+    
 //     if (initialData) {
+//       console.log("Initial Data:", initialData);
 //       setFormData({
 //         supplierName: initialData.supplierName || "",
 //         supplierPhone: initialData.supplierPhone || "",
@@ -227,6 +234,8 @@
 //             : p,
 //         );
 //       }
+// console.log("Adding Product:", product);
+
 //       const defaultPrice = Number(product.buyingPrice) || 0;
 //       return [
 //         ...prev,
@@ -374,31 +383,33 @@
 //     if (!formData.paymentStatus)
 //       newErrors.paymentStatus = "Payment status is required";
 
-//     // Payment validation
-//     if (!formData.paymentType)
-//       newErrors.paymentType = "Payment type is required";
+//     // Payment validation (only relevant when the payment panel is visible, i.e. for admins)
+//     if (isAdmin) {
+//       if (!formData.paymentType)
+//         newErrors.paymentType = "Payment type is required";
 
-//     if (
-//       (formData.paymentType === "FULL" || formData.paymentType === "ADVANCE") &&
-//       !formData.paymentMethod
-//     ) {
-//       newErrors.paymentMethod = "Payment method is required";
-//     }
+//       if (
+//         (formData.paymentType === "FULL" || formData.paymentType === "ADVANCE") &&
+//         !formData.paymentMethod
+//       ) {
+//         newErrors.paymentMethod = "Payment method is required";
+//       }
 
-//     if (formData.paymentType === "FULL" && formData.paidAmount !== grandTotal) {
-//       newErrors.paidAmount = "Full payment must equal grand total";
-//     }
+//       if (formData.paymentType === "FULL" && formData.paidAmount !== grandTotal) {
+//         newErrors.paidAmount = "Full payment must equal grand total";
+//       }
 
-//     if (formData.paymentType === "ADVANCE" && formData.paidAmount <= 0) {
-//       newErrors.paidAmount = "Advance payment amount required";
-//     }
+//       if (formData.paymentType === "ADVANCE" && formData.paidAmount <= 0) {
+//         newErrors.paidAmount = "Advance payment amount required";
+//       }
 
-//     if (formData.paymentType === "DUE" && formData.paidAmount > 0) {
-//       newErrors.paidAmount = "Due purchase cannot have paid amount";
-//     }
+//       if (formData.paymentType === "DUE" && formData.paidAmount > 0) {
+//         newErrors.paidAmount = "Due purchase cannot have paid amount";
+//       }
 
-//     if (formData.paidAmount > grandTotal) {
-//       newErrors.paidAmount = "Paid amount cannot exceed grand total";
+//       if (formData.paidAmount > grandTotal) {
+//         newErrors.paidAmount = "Paid amount cannot exceed grand total";
+//       }
 //     }
 
 //     setErrors(newErrors);
@@ -558,7 +569,9 @@
 //                                       {product.title}
 //                                     </p>
 //                                     <p className="text-xs text-gray-400">
-//                                       ৳{(displayPrice || 0).toFixed(2)}{" "}
+//                                       {isAdmin && (
+//                                         <>৳{(displayPrice || 0).toFixed(2)}{" "}</>
+//                                       )}
 //                                       <span
 //                                         className={
 //                                           product.availableStock === 0
@@ -566,7 +579,7 @@
 //                                             : "text-gray-400"
 //                                         }
 //                                       >
-//                                         ·{" "}
+//                                         {isAdmin && "· "}
 //                                         {product.availableStock === 0
 //                                           ? "Out of stock"
 //                                           : `${product.availableStock} available · ${product.totalAddedStock || 0} purchased`}
@@ -632,7 +645,7 @@
 //                             <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-200">
 //                               {item.title}
 //                             </p>
-//                             {item.marketPrice !== undefined && (
+//                             {isAdmin && item.marketPrice !== undefined && (
 //                               <p className="text-xs text-gray-400">
 //                                 Market price: ৳
 //                                 {(item.marketPrice || 0).toFixed(2)}
@@ -649,45 +662,47 @@
 //                           </button>
 //                         </div>
 
-//                         {/* Row 2: buying price + qty controls + line total */}
+//                         {/* Row 2: buying price + qty controls + line total (price fields admin-only) */}
 //                         <div className="flex items-end gap-3 flex-wrap">
-//                           {/* Buying Price */}
-//                           <div className="space-y-1 flex-1 min-w-27.5">
-//                             <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-//                               Buying Price{" "}
-//                               <span className="text-red-400">*</span>
-//                             </Label>
-//                             <div className="relative">
-//                               <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400 select-none">
-//                                 ৳
-//                               </span>
-//                               <Input
-//                                 type="number"
-//                                 min={0}
-//                                 step="0.01"
-//                                 placeholder="0.00"
-//                                 value={item.buyingPrice || ""}
-//                                 onWheel={(e) => e.currentTarget.blur()}
-//                                 onChange={(e) =>
-//                                   updateBuyingPrice(
-//                                     item.productId,
-//                                     parseFloat(e.target.value) || 0,
-//                                   )
-//                                 }
-//                                 className={cn(
-//                                   inputCls,
-//                                   "pl-6",
-//                                   errors[`price_${item.productId}`] &&
-//                                   "border-red-500",
-//                                 )}
-//                               />
+//                           {/* Buying Price — ADMIN ONLY */}
+//                           {isAdmin && (
+//                             <div className="space-y-1 flex-1 min-w-27.5">
+//                               <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+//                                 Buying Price{" "}
+//                                 <span className="text-red-400">*</span>
+//                               </Label>
+//                               <div className="relative">
+//                                 <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400 select-none">
+//                                   ৳
+//                                 </span>
+//                                 <Input
+//                                   type="number"
+//                                   min={0}
+//                                   step="0.01"
+//                                   placeholder="0.00"
+//                                   value={item.buyingPrice || ""}
+//                                   onWheel={(e) => e.currentTarget.blur()}
+//                                   onChange={(e) =>
+//                                     updateBuyingPrice(
+//                                       item.productId,
+//                                       parseFloat(e.target.value) || 0,
+//                                     )
+//                                   }
+//                                   className={cn(
+//                                     inputCls,
+//                                     "pl-6",
+//                                     errors[`price_${item.productId}`] &&
+//                                     "border-red-500",
+//                                   )}
+//                                 />
+//                               </div>
+//                               {errors[`price_${item.productId}`] && (
+//                                 <p className="text-[10px] text-red-500">
+//                                   {errors[`price_${item.productId}`]}
+//                                 </p>
+//                               )}
 //                             </div>
-//                             {errors[`price_${item.productId}`] && (
-//                               <p className="text-[10px] text-red-500">
-//                                 {errors[`price_${item.productId}`]}
-//                               </p>
-//                             )}
-//                           </div>
+//                           )}
 
 //                           {/* Quantity stepper */}
 //                           <div className="space-y-1">
@@ -734,15 +749,17 @@
 //                             )}
 //                           </div>
 
-//                           {/* Line total */}
-//                           <div className="space-y-1 text-right min-w-22.5">
-//                             <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-//                               Total
-//                             </Label>
-//                             <p className="h-9 flex items-center justify-end text-sm font-bold tabular-nums text-amber-600 dark:text-amber-400">
-//                               ৳{item.totalAmount.toFixed(2)}
-//                             </p>
-//                           </div>
+//                           {/* Line total — ADMIN ONLY */}
+//                           {isAdmin && (
+//                             <div className="space-y-1 text-right min-w-22.5">
+//                               <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+//                                 Total
+//                               </Label>
+//                               <p className="h-9 flex items-center justify-end text-sm font-bold tabular-nums text-amber-600 dark:text-amber-400">
+//                                 ৳{item.totalAmount.toFixed(2)}
+//                               </p>
+//                             </div>
+//                           )}
 //                         </div>
 //                       </div>
 //                     ))}
@@ -938,19 +955,21 @@
 //                       </p>
 //                     )}
 //                   </div>
-//                   {/* Grand Total display */}
-//                   <div className="space-y-1.5">
-//                     <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-//                       Grand Total
-//                     </Label>
-//                     <div className="flex items-center h-9 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-amber-50/60 dark:bg-amber-900/10 font-bold tabular-nums text-amber-700 dark:text-amber-400 text-sm">
-//                       ৳
-//                       {grandTotal.toLocaleString("en-US", {
-//                         minimumFractionDigits: 2,
-//                         maximumFractionDigits: 2,
-//                       })}
+//                   {/* Grand Total display — ADMIN ONLY */}
+//                   {isAdmin && (
+//                     <div className="space-y-1.5">
+//                       <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+//                         Grand Total
+//                       </Label>
+//                       <div className="flex items-center h-9 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-amber-50/60 dark:bg-amber-900/10 font-bold tabular-nums text-amber-700 dark:text-amber-400 text-sm">
+//                         ৳
+//                         {grandTotal.toLocaleString("en-US", {
+//                           minimumFractionDigits: 2,
+//                           maximumFractionDigits: 2,
+//                         })}
+//                       </div>
 //                     </div>
-//                   </div>
+//                   )}
 //                 </div>
 //               </div>
 
@@ -1031,161 +1050,163 @@
 //                 </div>
 //               </div>
 
-//               {/* ── Payment Information ── */}
-//               <div className="rounded-xl border border-amber-100 bg-amber-50/40 p-4 dark:border-amber-900/30 dark:bg-amber-900/10">
-//                 <SectionLabel
-//                   icon={
-//                     <Package className="h-3 w-3 text-amber-500 dark:text-amber-400" />
-//                   }
-//                 >
-//                   Payment Information
-//                 </SectionLabel>
+//               {/* ── Payment Information — ADMIN ONLY (all amounts/prices live here) ── */}
+//               {isAdmin && (
+//                 <div className="rounded-xl border border-amber-100 bg-amber-50/40 p-4 dark:border-amber-900/30 dark:bg-amber-900/10">
+//                   <SectionLabel
+//                     icon={
+//                       <Package className="h-3 w-3 text-amber-500 dark:text-amber-400" />
+//                     }
+//                   >
+//                     Payment Information
+//                   </SectionLabel>
 
-//                 {/* Payment Type Selection */}
-//                 <div className="mb-4 space-y-2">
-//                   <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-//                     Payment Type <span className="text-red-400">*</span>
-//                   </Label>
-//                   <div className="grid gap-2 sm:grid-cols-3">
-//                     {(["FULL", "ADVANCE", "DUE"] as const).map((type) => (
-//                       <button
-//                         key={type}
-//                         type="button"
-//                         onClick={() => handlePaymentTypeChange(type)}
-//                         className={cn(
-//                           "rounded-lg border-2 px-4 py-2 text-sm font-semibold transition-all",
-//                           formData.paymentType === type
-//                             ? "border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-400 dark:bg-amber-900/20 dark:text-amber-300"
-//                             : "border-gray-200 bg-white text-gray-600 hover:border-amber-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-amber-800",
-//                         )}
-//                       >
-//                         {type === "FULL" && "Full Payment"}
-//                         {type === "ADVANCE" && "Advance Payment"}
-//                         {type === "DUE" && "Due (No Payment)"}
-//                       </button>
-//                     ))}
-//                   </div>
-//                   {errors.paymentType && (
-//                     <p className="text-[10px] text-red-500">
-//                       {errors.paymentType}
-//                     </p>
-//                   )}
-//                 </div>
-
-//                 {/* Payment Method - Only for FULL/ADVANCE */}
-//                 {(formData.paymentType === "FULL" ||
-//                   formData.paymentType === "ADVANCE") && (
-//                     <div className="mb-4">
-//                       <Label
-//                         htmlFor="paymentMethod"
-//                         className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2 block"
-//                       >
-//                         Payment Method <span className="text-red-400">*</span>
-//                       </Label>
-//                       <Select
-//                         value={formData.paymentMethod || ""}
-//                         onValueChange={(value) =>
-//                           setFormData((prev) => ({
-//                             ...prev,
-//                             paymentMethod: value,
-//                           }))
-//                         }
-//                       >
-//                         <SelectTrigger
-//                           id="paymentMethod"
+//                   {/* Payment Type Selection */}
+//                   <div className="mb-4 space-y-2">
+//                     <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+//                       Payment Type <span className="text-red-400">*</span>
+//                     </Label>
+//                     <div className="grid gap-2 sm:grid-cols-3">
+//                       {(["FULL", "ADVANCE", "DUE"] as const).map((type) => (
+//                         <button
+//                           key={type}
+//                           type="button"
+//                           onClick={() => handlePaymentTypeChange(type)}
 //                           className={cn(
-//                             inputCls,
-//                             errors.paymentMethod && "border-red-500",
+//                             "rounded-lg border-2 px-4 py-2 text-sm font-semibold transition-all",
+//                             formData.paymentType === type
+//                               ? "border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-400 dark:bg-amber-900/20 dark:text-amber-300"
+//                               : "border-gray-200 bg-white text-gray-600 hover:border-amber-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-amber-800",
 //                           )}
 //                         >
-//                           <SelectValue placeholder="Select payment method" />
-//                         </SelectTrigger>
-//                         <SelectContent>
-//                           <SelectItem value="CASH">Cash</SelectItem>
-//                           <SelectItem value="BANK_TRANSFER">
-//                             Bank Transfer
-//                           </SelectItem>
-//                           <SelectItem value="CHEQUE">Cheque</SelectItem>
-//                           <SelectItem value="CARD">Card</SelectItem>
-//                           <SelectItem value="MOBILE_BANKING">
-//                             Mobile Banking
-//                           </SelectItem>
-//                           <SelectItem value="OTHER">Other</SelectItem>
-//                         </SelectContent>
-//                       </Select>
-//                       {errors.paymentMethod && (
-//                         <p className="mt-1 text-[10px] text-red-500">
-//                           {errors.paymentMethod}
-//                         </p>
-//                       )}
+//                           {type === "FULL" && "Full Payment"}
+//                           {type === "ADVANCE" && "Advance Payment"}
+//                           {type === "DUE" && "Due (No Payment)"}
+//                         </button>
+//                       ))}
 //                     </div>
-//                   )}
-
-//                 {/* Amount Fields */}
-//                 <div className="grid gap-3 sm:grid-cols-3">
-//                   <div className="space-y-1.5">
-//                     <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-//                       Grand Total
-//                     </Label>
-//                     <div className="flex items-center h-9 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold tabular-nums text-amber-700 dark:text-amber-400 text-sm">
-//                       ৳{grandTotal.toFixed(2)}
-//                     </div>
+//                     {errors.paymentType && (
+//                       <p className="text-[10px] text-red-500">
+//                         {errors.paymentType}
+//                       </p>
+//                     )}
 //                   </div>
 
-//                   {formData.paymentType !== "DUE" && (
-//                     <div className="space-y-1.5">
-//                       <Label
-//                         htmlFor="paidAmount"
-//                         className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400"
-//                       >
-//                         Paid Amount{" "}
-//                         {formData.paymentType === "FULL" && "(Auto)"}
-//                       </Label>
-//                       <Input
-//                         id="paidAmount"
-//                         type="number"
-//                         min="0"
-//                         max={grandTotal}
-//                         step="0.01"
-//                         value={formData.paidAmount}
-//                         onChange={(e) =>
-//                           handlePaidAmountChange(Number(e.target.value))
-//                         }
-//                         disabled={formData.paymentType === "FULL"}
-//                         className={cn(
-//                           inputCls,
-//                           errors.paidAmount && "border-red-500",
-//                           formData.paymentType === "FULL" &&
-//                           "opacity-50 cursor-not-allowed",
+//                   {/* Payment Method - Only for FULL/ADVANCE */}
+//                   {(formData.paymentType === "FULL" ||
+//                     formData.paymentType === "ADVANCE") && (
+//                       <div className="mb-4">
+//                         <Label
+//                           htmlFor="paymentMethod"
+//                           className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2 block"
+//                         >
+//                           Payment Method <span className="text-red-400">*</span>
+//                         </Label>
+//                         <Select
+//                           value={formData.paymentMethod || ""}
+//                           onValueChange={(value) =>
+//                             setFormData((prev) => ({
+//                               ...prev,
+//                               paymentMethod: value,
+//                             }))
+//                           }
+//                         >
+//                           <SelectTrigger
+//                             id="paymentMethod"
+//                             className={cn(
+//                               inputCls,
+//                               errors.paymentMethod && "border-red-500",
+//                             )}
+//                           >
+//                             <SelectValue placeholder="Select payment method" />
+//                           </SelectTrigger>
+//                           <SelectContent>
+//                             <SelectItem value="CASH">Cash</SelectItem>
+//                             <SelectItem value="BANK_TRANSFER">
+//                               Bank Transfer
+//                             </SelectItem>
+//                             <SelectItem value="CHEQUE">Cheque</SelectItem>
+//                             <SelectItem value="CARD">Card</SelectItem>
+//                             <SelectItem value="MOBILE_BANKING">
+//                               Mobile Banking
+//                             </SelectItem>
+//                             <SelectItem value="OTHER">Other</SelectItem>
+//                           </SelectContent>
+//                         </Select>
+//                         {errors.paymentMethod && (
+//                           <p className="mt-1 text-[10px] text-red-500">
+//                             {errors.paymentMethod}
+//                           </p>
 //                         )}
-//                         placeholder="Enter paid amount"
-//                       />
-//                       {errors.paidAmount && (
-//                         <p className="text-[10px] text-red-500">
-//                           {errors.paidAmount}
-//                         </p>
-//                       )}
-//                     </div>
-//                   )}
+//                       </div>
+//                     )}
 
-//                   <div className="space-y-1.5">
-//                     <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-//                       Due Amount {formData.paymentType !== "DUE" && "(Auto)"}
-//                     </Label>
-//                     <div className="flex items-center h-9 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold tabular-nums text-sm">
-//                       <span
-//                         className={cn(
-//                           formData.dueAmount > 0
-//                             ? "text-red-600 dark:text-red-400"
-//                             : "text-green-600 dark:text-green-400",
+//                   {/* Amount Fields */}
+//                   <div className="grid gap-3 sm:grid-cols-3">
+//                     <div className="space-y-1.5">
+//                       <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+//                         Grand Total
+//                       </Label>
+//                       <div className="flex items-center h-9 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold tabular-nums text-amber-700 dark:text-amber-400 text-sm">
+//                         ৳{grandTotal.toFixed(2)}
+//                       </div>
+//                     </div>
+
+//                     {formData.paymentType !== "DUE" && (
+//                       <div className="space-y-1.5">
+//                         <Label
+//                           htmlFor="paidAmount"
+//                           className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400"
+//                         >
+//                           Paid Amount{" "}
+//                           {formData.paymentType === "FULL" && "(Auto)"}
+//                         </Label>
+//                         <Input
+//                           id="paidAmount"
+//                           type="number"
+//                           min="0"
+//                           max={grandTotal}
+//                           step="0.01"
+//                           value={formData.paidAmount}
+//                           onChange={(e) =>
+//                             handlePaidAmountChange(Number(e.target.value))
+//                           }
+//                           disabled={formData.paymentType === "FULL"}
+//                           className={cn(
+//                             inputCls,
+//                             errors.paidAmount && "border-red-500",
+//                             formData.paymentType === "FULL" &&
+//                             "opacity-50 cursor-not-allowed",
+//                           )}
+//                           placeholder="Enter paid amount"
+//                         />
+//                         {errors.paidAmount && (
+//                           <p className="text-[10px] text-red-500">
+//                             {errors.paidAmount}
+//                           </p>
 //                         )}
-//                       >
-//                         ৳{formData.dueAmount.toFixed(2)}
-//                       </span>
+//                       </div>
+//                     )}
+
+//                     <div className="space-y-1.5">
+//                       <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+//                         Due Amount {formData.paymentType !== "DUE" && "(Auto)"}
+//                       </Label>
+//                       <div className="flex items-center h-9 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold tabular-nums text-sm">
+//                         <span
+//                           className={cn(
+//                             formData.dueAmount > 0
+//                               ? "text-red-600 dark:text-red-400"
+//                               : "text-green-600 dark:text-green-400",
+//                           )}
+//                         >
+//                           ৳{formData.dueAmount.toFixed(2)}
+//                         </span>
+//                       </div>
 //                     </div>
 //                   </div>
 //                 </div>
-//               </div>
+//               )}
 
 //               {/* ── Notes ── */}
 //               <div className="space-y-1.5">
@@ -1216,8 +1237,8 @@
 
 //         {/* ── Footer ── */}
 //         <div className="border-t border-gray-100 bg-gray-50/50 px-6 py-4 dark:border-gray-800 dark:bg-gray-900/50">
-//           {/* Grand total summary strip */}
-//           {selectedProducts.length > 0 && (
+//           {/* Grand total summary strip — ADMIN ONLY */}
+//           {isAdmin && selectedProducts.length > 0 && (
 //             <div className="flex items-center justify-between rounded-xl border border-amber-200/60 bg-amber-50/40 px-4 py-2 mb-3 dark:border-amber-900/30 dark:bg-amber-900/10">
 //               <span className="text-xs font-semibold text-amber-700/70 dark:text-amber-500/70">
 //                 {selectedProducts.reduce((s, p) => s + p.quantity, 0)} units ·{" "}
@@ -1278,6 +1299,8 @@
 //     </Dialog>
 //   );
 // };
+
+
 
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -1461,7 +1484,12 @@ export const ProductPurchaseForm: React.FC<ProductPurchaseFormProps> = ({
         setSelectedProducts(
           initialData.products.map((item: any) => {
             const qty = Number(item.quantity) || 1;
-            const price = Number(item.buyingPrice) || 0;
+            // Fallback chain: saved buyingPrice -> product's buyingPrice -> product's market price -> 0
+            const price =
+              Number(item.buyingPrice) ||
+              Number(item.product?.buyingPrice) ||
+              Number(item.product?.price) ||
+              0;
             return {
               productId: item.product?._id || item.product || "",
               title: item.product?.title || item.title || "",
@@ -1511,7 +1539,13 @@ export const ProductPurchaseForm: React.FC<ProductPurchaseFormProps> = ({
             : p,
         );
       }
-      const defaultPrice = Number(product.buyingPrice) || 0;
+
+      // Fallback chain so a required field is never silently left at 0
+      // when the admin-only input isn't rendered for this role:
+      // product's own buyingPrice -> product's market price -> 0
+      const defaultPrice =
+        Number(product.buyingPrice) || Number(product.price) || 0;
+
       return [
         ...prev,
         {
@@ -1638,7 +1672,11 @@ export const ProductPurchaseForm: React.FC<ProductPurchaseFormProps> = ({
       newErrors.products = "Please add at least one product";
     } else {
       selectedProducts.forEach((p) => {
-        if (p.buyingPrice <= 0)
+        // Buying price is an admin-only field on this form. A non-admin
+        // (e.g. manager) never sees/edits this input, so we must not
+        // require it from them — it's auto-filled from the product's
+        // own data instead (see addProduct's defaultPrice fallback).
+        if (isAdmin && p.buyingPrice <= 0)
           newErrors[`price_${p.productId}`] = "Price required";
         if (p.quantity <= 0)
           newErrors[`qty_${p.productId}`] = "Quantity required";
