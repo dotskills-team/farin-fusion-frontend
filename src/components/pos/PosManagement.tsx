@@ -8,6 +8,7 @@ import React, {
   useEffect,
   useRef,
 } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { Search, Filter, ShoppingCart, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,18 @@ import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { useBarcodeScanner } from "@/hooks/useBarcodeScanner";
-import { BarcodeCameraScannerModal } from "./BarcodeCameraScannerModal";
+// PERFORMANCE OPTIMIZATION:
+// The barcode camera scanner pulls in @zxing/browser, a heavy dependency
+// only needed once the user opens the camera scanner. Loading it as a
+// separate chunk (instead of the main POS bundle) does not change the
+// component's props, behavior, or when it is rendered.
+const BarcodeCameraScannerModal = dynamic(
+  () =>
+    import("./BarcodeCameraScannerModal").then(
+      (mod) => mod.BarcodeCameraScannerModal,
+    ),
+  { ssr: false },
+);
 import { AnalyticsEvents } from "@/lib/analytics";
 
 export default function POSManagement() {
