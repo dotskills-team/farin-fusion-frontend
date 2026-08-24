@@ -300,10 +300,10 @@ export default function DashboardOverview() {
   const isAdmin = userRole === "ADMIN";
   const isModerator = userRole === "MODERATOR";
   const isManager = userRole === "MANAGER";
-  const isStaff = ["MANAGER", "MODERATOR", "TELLICELSS"].includes(userRole);
+  const isStaff = ["MANAGER", "MODERATOR", "TELESALES"].includes(userRole);
   const isGeneralStaff = userRole === "GENERALSTAFF";
   // Roles whose backend payload includes `myPerformance` (individually scoped stats)
-  const isMyPerformanceRole = ["MODERATOR", "TELLICELSS"].includes(userRole);
+  const isMyPerformanceRole = ["MODERATOR", "TELESALES"].includes(userRole);
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);

@@ -10,7 +10,7 @@ export const getSidebarData = (role: UserRole) => {
       return managerSidebar;
     case "MODERATOR":
       return moderatorSidebar;
-    case "TELLICELSS":
+    case "TELESALES":
       return telecallerSidebar;
     case "GENERALSTAFF":
       return generalStaffSidebar;

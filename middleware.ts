@@ -7,7 +7,7 @@ enum UserRole {
   MANAGER = "MANAGER",
   MODERATOR = "MODERATOR",
   GENERALSTAFF = "GENERALSTAFF",
-  TELLICELSS = "TELLICELSS",
+  TELESALES = "TELESALES",
   CUSTOMER = "CUSTOMER",
 }
 
@@ -22,25 +22,25 @@ const roleRoutes: Record<string, UserRole[]> = {
     UserRole.ADMIN,
     UserRole.MANAGER,
     UserRole.MODERATOR,
-    UserRole.TELLICELSS,
+    UserRole.TELESALES,
   ],
   "/staff/dashboard/admin/category-management": [
     UserRole.ADMIN,
     UserRole.MANAGER,
     UserRole.MODERATOR,
-    UserRole.TELLICELSS,
+    UserRole.TELESALES,
   ],
   "/staff/dashboard/admin/brand-management": [
     UserRole.ADMIN,
     UserRole.MANAGER,
     UserRole.MODERATOR,
-    UserRole.TELLICELSS,
+    UserRole.TELESALES,
   ],
   "/staff/dashboard/orders-management": [
     UserRole.ADMIN,
     UserRole.MANAGER,
     UserRole.MODERATOR,
-    UserRole.TELLICELSS,
+    UserRole.TELESALES,
   ],
 
   "/staff/dashboard/pos": [
@@ -48,7 +48,7 @@ const roleRoutes: Record<string, UserRole[]> = {
     UserRole.MANAGER,
     UserRole.MODERATOR,
     UserRole.GENERALSTAFF,
-    UserRole.TELLICELSS,
+    UserRole.TELESALES,
   ],
 
   "/staff/dashboard/my-orders": [
@@ -56,7 +56,7 @@ const roleRoutes: Record<string, UserRole[]> = {
     UserRole.MANAGER,
     UserRole.MODERATOR,
     UserRole.GENERALSTAFF,
-    UserRole.TELLICELSS,
+    UserRole.TELESALES,
   ],
 };
 
@@ -69,7 +69,7 @@ function getDashboardRoute(role: UserRole) {
       return "/staff/dashboard/orders-management";
 
     case UserRole.MODERATOR:
-    case UserRole.TELLICELSS:
+    case UserRole.TELESALES:
       return "/staff/dashboard/my-orders";
 
     default:
