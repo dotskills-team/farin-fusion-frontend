@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import {
   format,
@@ -94,6 +94,8 @@ import { useGetMeQuery } from "@/redux/features/user/user.api";
 
 const LIMIT = 10;
 const allProductLimit = 5000;
+const DEFAULT_SORT = "-createdAt";
+const DEFAULT_STOCK_FILTER = "all";
 
 const PRESETS = [
   {
@@ -284,22 +286,70 @@ function SortIcon({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
 }
 
 export default function ProductManagement() {
+  // PERFORMANCE OPTIMIZATION:
+  // useSearchParams() requires a Suspense boundary for safe static rendering.
+  // Wrapping here (instead of touching page.tsx) keeps the fix contained to
+  // this single file.
+  return (
+    <Suspense fallback={<TableSkeleton />}>
+      <ProductManagementContent />
+    </Suspense>
+  );
+}
+
+function ProductManagementContent() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [trashProduct] = useTrashUpdateProductMutation();
   const [toggleFeatured] = useToggleFeaturedMutation();
   const { data: user } = useGetMeQuery(undefined);
   const role = user?.data?.role;
-  const [localSearch, setLocalSearch] = useState("");
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("");
-  const [stockFilter, setStockFilter] = useState("all");
-  const [sort, setSort] = useState("-createdAt");
-  const [page, setPage] = useState(1);
+
+  // PERFORMANCE OPTIMIZATION:
+  // Filter/search/sort/pagination/date state now derives from the URL
+  // (via useSearchParams) instead of component-local useState, so it
+  // survives navigating away and back (Next.js unmounts this page component
+  // on route change, which previously reset all of this to defaults). Same
+  // query-arg values now produce the same RTK Query cache key on revisit,
+  // so the existing cache (and existing keepUnusedDataFor/isLoading/
+  // isFetching behavior) is reused instead of always refetching. The shape
+  // of the params sent to useGetAllProductsQuery below is unchanged; only
+  // where these values are read from has changed. When the URL has no
+  // params (fresh navigation from the sidebar), every value below falls
+  // back to the exact same default used before this change.
+  const search = searchParams.get("search") ?? "";
+  const status = searchParams.get("status") ?? "";
+  const stockFilter = searchParams.get("stockFilter") ?? DEFAULT_STOCK_FILTER;
+  const sort = searchParams.get("sort") ?? DEFAULT_SORT;
+  const page = Number(searchParams.get("page") ?? "1") || 1;
+  const dateFromParam = searchParams.get("dateFrom");
+  const dateToParam = searchParams.get("dateTo");
+  const dateFrom = dateFromParam ? new Date(dateFromParam) : undefined;
+  const dateTo = dateToParam ? new Date(dateToParam) : undefined;
+
+  const updateParams = useCallback(
+    (updates: Record<string, string | undefined>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === undefined || value === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams],
+  );
+
+  const [localSearch, setLocalSearch] = useState(search);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
-  const [calRange, setCalRange] = useState<DateRange | undefined>(undefined);
+  const [calRange, setCalRange] = useState<DateRange | undefined>(() =>
+    dateFrom && dateTo ? { from: dateFrom, to: dateTo } : undefined,
+  );
   const [calOpen, setCalOpen] = useState(false);
 
   // const [clientSort, setClientSort] = useState<{
@@ -401,60 +451,63 @@ export default function ProductManagement() {
     setLocalSearch(val);
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
-      setSearch(val);
-      setPage(1);
+      updateParams({ search: val || undefined, page: undefined });
     }, 400);
   };
   const clearSearch = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setLocalSearch("");
-    setSearch("");
-    setPage(1);
+    updateParams({ search: undefined, page: undefined });
   };
 
   const applyPreset = (preset: (typeof PRESETS)[number]) => {
     const { from, to } = preset.get();
     setCalRange({ from, to });
-    setDateFrom(from);
-    setDateTo(to);
-    setPage(1);
     setCalOpen(false);
+    updateParams({
+      dateFrom: from.toISOString(),
+      dateTo: to.toISOString(),
+      page: undefined,
+    });
   };
 
   const handleCalSelect = (range: DateRange | undefined) => {
     setCalRange(range);
     if (range?.from && range?.to) {
-      setDateFrom(startOfDay(range.from));
-      setDateTo(endOfDay(range.to));
-      setPage(1);
+      updateParams({
+        dateFrom: startOfDay(range.from).toISOString(),
+        dateTo: endOfDay(range.to).toISOString(),
+        page: undefined,
+      });
     } else if (range?.from) {
-      setDateFrom(startOfDay(range.from));
-      setDateTo(endOfDay(range.from));
-      setPage(1);
+      updateParams({
+        dateFrom: startOfDay(range.from).toISOString(),
+        dateTo: endOfDay(range.from).toISOString(),
+        page: undefined,
+      });
     } else {
-      setDateFrom(undefined);
-      setDateTo(undefined);
+      updateParams({ dateFrom: undefined, dateTo: undefined });
     }
   };
 
   const clearDate = () => {
     setCalRange(undefined);
-    setDateFrom(undefined);
-    setDateTo(undefined);
-    setPage(1);
     setCalOpen(false);
+    updateParams({ dateFrom: undefined, dateTo: undefined, page: undefined });
   };
 
   const handleReset = () => {
     setLocalSearch("");
-    setSearch("");
-    setSort("-createdAt");
-    setStatus("");
-    setStockFilter("");
     setCalRange(undefined);
-    setDateFrom(undefined);
-    setDateTo(undefined);
-    setPage(1);
+    updateParams({
+      search: undefined,
+      sort: undefined,
+      status: undefined,
+      stockFilter: undefined,
+      dateFrom: undefined,
+      dateTo: undefined,
+      page: undefined,
+    });
   };
 
   const confirmDelete = async () => {
@@ -474,7 +527,7 @@ export default function ProductManagement() {
   };
 
   const hasFilters =
-    !!search || !!status || sort !== "-createdAt" || !!dateFrom;
+    !!search || !!status || sort !== DEFAULT_SORT || !!dateFrom;
   const activeDateLabel = getPresetLabel(dateFrom, dateTo);
   const dateChipLabel = dateFrom
     ? (activeDateLabel ?? formatDateLabel(dateFrom, dateTo))
@@ -585,8 +638,10 @@ export default function ProductManagement() {
             <Select
               value={status || "all"}
               onValueChange={(v) => {
-                setStatus(v === "all" ? "" : v);
-                setPage(1);
+                updateParams({
+                  status: v === "all" ? undefined : v,
+                  page: undefined,
+                });
               }}
             >
               <SelectTrigger className="h-10 w-36 rounded-xl border-gray-200 bg-gray-50/60 text-sm focus:border-amber-400 dark:border-gray-700 dark:bg-gray-800/60 dark:focus:border-amber-500 transition-colors">
@@ -610,8 +665,10 @@ export default function ProductManagement() {
           <Select
             value={stockFilter || "all"}
             onValueChange={(v) => {
-              setStockFilter(v);
-              setPage(1);
+              updateParams({
+                stockFilter: v === "all" ? undefined : v,
+                page: undefined,
+              });
             }}
           >
             <SelectTrigger className="h-10 w-40 rounded-xl border-gray-200 bg-gray-50/60 text-sm focus:border-amber-400 dark:border-gray-700 dark:bg-gray-800/60 dark:focus:border-amber-500 transition-colors">
@@ -634,8 +691,10 @@ export default function ProductManagement() {
           <Select
             value={sort}
             onValueChange={(v) => {
-              setSort(v);
-              setPage(1);
+              updateParams({
+                sort: v === DEFAULT_SORT ? undefined : v,
+                page: undefined,
+              });
             }}
           >
             <SelectTrigger className="h-10 w-44 rounded-xl border-gray-200 bg-gray-50/60 text-sm focus:border-amber-400 dark:border-gray-700 dark:bg-gray-800/60 dark:focus:border-amber-500 transition-colors">
@@ -810,7 +869,10 @@ export default function ProductManagement() {
                   <XCircle className="h-3 w-3" />
                 )}
                 {status}
-                <button onClick={() => setStatus("")} className="ml-0.5">
+                <button
+                  onClick={() => updateParams({ status: undefined })}
+                  className="ml-0.5"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -951,13 +1013,18 @@ export default function ProductManagement() {
                                       ? "desc"
                                       : null;
 
-                                if (current === "desc") {
-                                  setSort(col.key!);
-                                } else {
-                                  setSort(`-${col.key}`);
-                                }
+                                const newSort =
+                                  current === "desc"
+                                    ? col.key!
+                                    : `-${col.key}`;
 
-                                setPage(1);
+                                updateParams({
+                                  sort:
+                                    newSort === DEFAULT_SORT
+                                      ? undefined
+                                      : newSort,
+                                  page: undefined,
+                                });
                               }
                             : undefined
                         }
@@ -1192,7 +1259,12 @@ export default function ProductManagement() {
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  onClick={() => page > 1 && setPage((p) => p - 1)}
+                  onClick={() =>
+                    page > 1 &&
+                    updateParams({
+                      page: page - 1 <= 1 ? undefined : String(page - 1),
+                    })
+                  }
                   className={
                     page === 1
                       ? "pointer-events-none opacity-50"
@@ -1209,7 +1281,11 @@ export default function ProductManagement() {
                 return (
                   <PaginationItem key={pageNum}>
                     <PaginationLink
-                      onClick={() => setPage(pageNum)}
+                      onClick={() =>
+                        updateParams({
+                          page: pageNum <= 1 ? undefined : String(pageNum),
+                        })
+                      }
                       isActive={page === pageNum}
                       className={cn(
                         "cursor-pointer",
@@ -1224,7 +1300,12 @@ export default function ProductManagement() {
               })}
               <PaginationItem>
                 <PaginationNext
-                  onClick={() => page < totalPages && setPage((p) => p + 1)}
+                  onClick={() =>
+                    page < totalPages &&
+                    updateParams({
+                      page: page + 1 <= 1 ? undefined : String(page + 1),
+                    })
+                  }
                   className={
                     page === totalPages
                       ? "pointer-events-none opacity-50"

@@ -12,9 +12,6 @@ export default function AppBootstrap({
 
   useEffect(() => {
     const init = async () => {
-      // Wait for hydration + providers
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       setReady(true);
     };
 
