@@ -46,7 +46,7 @@ export type UserRole =
   | "ADMIN"
   | "MODERATOR"
   | "MANAGER"
-  | "TELLICELSS"
+  | "TELESALES"
   | "CUSTOMER";
 
 interface MyOrdersTableProps {
@@ -140,7 +140,7 @@ export function MyOrdersTable({
   setDeleteOpen,
 }: MyOrdersTableProps) {
   // Role permissions
-  const canEdit = ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(
+  const canEdit = ["ADMIN", "MODERATOR", "MANAGER", "TELESALES"].includes(
     userRole,
   );
 

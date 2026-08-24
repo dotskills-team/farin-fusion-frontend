@@ -38,7 +38,7 @@ const ROLE_BADGE: Record<string, string> = {
     "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
   MODERATOR:
     "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-400",
-  TELLICELSS:
+  TELESALES:
     "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400",
 };
 

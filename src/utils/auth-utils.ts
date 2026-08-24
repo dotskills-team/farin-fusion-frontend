@@ -3,7 +3,7 @@ export type UserRole =
   | "ADMIN"
   | "MANAGER"
   | "MODERATOR"
-  | "TELLICELSS"
+  | "TELESALES"
   | "GENERALSTAFF"
   | "CUSTOMER";
 
@@ -87,7 +87,7 @@ export const isValidRouteForRole = (
 
   // Staff access
   if (pathname.startsWith("/staff/dashboard")) {
-    return ["ADMIN", "MANAGER", "MODERATOR", "TELLICELSS", "GENERALSTAFF"].includes(role);
+    return ["ADMIN", "MANAGER", "MODERATOR", "TELESALES", "GENERALSTAFF"].includes(role);
   }
 
   return false;
@@ -98,7 +98,7 @@ export const getDefaultDashboardRoute = (role: UserRole): string => {
   switch (role) {
     case "CUSTOMER":
       return "/customer/dashboard/my-orders";
-    case "TELLICELSS":
+    case "TELESALES":
       return "/staff/dashboard/my-orders";
     case "MODERATOR":
       return "/staff/dashboard";
