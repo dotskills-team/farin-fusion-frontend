@@ -28,7 +28,7 @@ export function middleware(req: NextRequest) {
   }
 
   if (STAFF_ROUTES.some((route) => route.test(pathname))) {
-    if (!["MODERATOR", "MANAGER", "ADMIN", "TELLICELSS"].includes(role || "")) {
+    if (!["MODERATOR", "MANAGER", "ADMIN", "TELESALES"].includes(role || "")) {
       return NextResponse.redirect(new URL("/staff/dashboard", req.url));
     }
   }
