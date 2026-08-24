@@ -24,7 +24,7 @@ export type UserRole =
   | "MANAGER"
   | "MODERATOR"
   | "CUSTOMER"
-  | "TELLICELSS";
+  | "TELESALES";
 
 export interface UserPermissions {
   role: UserRole;
@@ -67,7 +67,7 @@ export const defaultRolePermissions: Record<UserRole, PageAccess[]> = {
     "my-orders",
     "pos",
   ],
-  TELLICELSS: [
+  TELESALES: [
     "dashboard",
     "product-management",
     "category-management",

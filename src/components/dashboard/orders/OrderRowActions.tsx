@@ -124,7 +124,7 @@ export function OrderRowActions({
   //     !isDelivered;
 
   const hasAccess =
-    userRole && ["ADMIN", "MANAGER", "TELLICELSS"].includes(userRole);
+    userRole && ["ADMIN", "MANAGER", "TELESALES"].includes(userRole);
   const isNoResponse = order.orderStatus === "NO_RESPONSE";
   const isWaitingStock = order.orderStatus === "WAITING_FOR_STOCK";
 
